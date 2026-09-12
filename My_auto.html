@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мое PWA Приложение</title>
+
+  <!-- PWA и метатеги мобильной ОС -->
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Приложение">
+
+  <!-- Manifest через Data URL c встроенной SVG-иконкой -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Мое PWA Приложение","short_name":"Приложение","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#4f46e5","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><rect width=\"512\" height=\"512\" rx=\"100\" fill=\"%234f46e5\"/><text x=\"50%\" y=\"50%\" font-size=\"260\" fill=\"white\" dominant-baseline=\"central\" text-anchor=\"middle\">⚡</text></svg>","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
+
+  <!-- Иконка для iOS Safari (Apple Touch Icon) -->
+  <link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="%234f46e5"/><text x="50%" y="50%" font-size="260" fill="white" dominant-baseline="central" text-anchor="middle">⚡</text></svg>'>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      margin: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Мое Приложение</h1>
+    <p>Нажмите **«Добавить на главный экран»** в меню браузера, чтобы установить приложение на смартфон.</p>
+  </div>
+
+  <!-- Регистрация Service Worker через Blob URL -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      const swScript = `
+        const CACHE_NAME = 'pwa-single-file-v1';
+
+        self.addEventListener('install', (event) => {
+          self.skipWaiting();
+        });
+
+        self.addEventListener('activate', (event) => {
+          event.waitUntil(clients.claim());
+        });
+
+        self.addEventListener('fetch', (event) => {
+          event.respondWith(
+            fetch(event.request).catch(() => caches.match(event.request))
+          );
+        });
+      `;
+
+      const blob = new Blob([swScript], { type: 'text/javascript' });
+      const swUrl = URL.createObjectURL(blob);
+
+      navigator.serviceWorker.register(swUrl)
+        .catch((err) => console.error('Ошибка регистрации Service Worker:', err));
+    }
+  </script>
+</body>
+</html>
